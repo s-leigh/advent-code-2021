@@ -18,9 +18,26 @@ func day02Question01(filePath string) int {
 	for _, inputLine := range input {
 		direction, scale := directionAndScale(inputLine)
 		switch direction {
-		case "forward": horiz += scale
-		case "down": depth += scale
-		case "up": depth -= scale
+			case "forward": horiz += scale
+			case "down": depth += scale
+			case "up": depth -= scale
+		}
+	}
+	return horiz * depth
+}
+
+func day02Question02(filePath string) int {
+	input := utils.SplitByNewLine(filePath)
+	var horiz, depth, aim int
+	for _, inputLine := range input {
+		direction, scale := directionAndScale(inputLine)
+		switch direction {
+			case "forward": {
+				horiz += scale
+				depth += aim * scale
+			}
+			case "down": aim += scale
+			case "up": aim -= scale
 		}
 	}
 	return horiz * depth
