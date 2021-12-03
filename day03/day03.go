@@ -8,8 +8,25 @@ import (
 
 func day03Question01(filePath string) int {
 	input := utils.SplitByNewLine(filePath)
-	binaryNumberLength := len(input[0])
+	mostCommonBits := mostCommonBits(input)
+	gamma := binarySliceToInt(mostCommonBits)
+	epsilon := binarySliceToInt(flipBits(mostCommonBits))
+	return gamma * epsilon
+}
 
+func binarySliceToInt(binary []int) int {
+	var stringSlice = make([]string, len(binary))
+	for i, bin := range binary {
+		binAsString := strconv.Itoa(bin)
+		stringSlice[i] = binAsString
+	}
+	asString := strings.Join(stringSlice, "")
+	retInt, _ := strconv.ParseInt(asString, 2, 16)
+	return int(retInt)
+}
+
+func mostCommonBits(input []string) []int {
+	binaryNumberLength := len(input[0])
 	bitSum := make([]int, binaryNumberLength)
 	for _, binary := range input {
 		for j, bit := range []rune(binary) {
@@ -18,27 +35,25 @@ func day03Question01(filePath string) int {
 		}
 	}
 
-	mostCommonBits := make([]string, binaryNumberLength)
+	commonestBits := make([]int, binaryNumberLength)
 	for i, sum := range bitSum {
 		if sum > len(input) / 2 {
-			mostCommonBits[i] = "1"
+			commonestBits[i] = 1
 		} else {
-			mostCommonBits[i] = "0"
+			commonestBits[i] = 0
 		}
 	}
+	return commonestBits
+}
 
-	var epsilonString string
-	for _, r := range mostCommonBits {
-		if string(r) == "1" {
-			epsilonString += "0"
+func flipBits(binary []int) []int {
+	flipped := make([]int, len(binary))
+	for i, bit := range binary {
+		if bit == 1 {
+			flipped[i] = 0
 		} else {
-			epsilonString += "1"
+			flipped[i] = 1
 		}
 	}
-
-	epsilon, _ := strconv.ParseInt(epsilonString, 2, 16)
-	commonBitsString := strings.Join(mostCommonBits, "")
-	gamma, _ := strconv.ParseInt(commonBitsString, 2, 16)
-
-	return int(gamma) * int(epsilon)
+	return flipped
 }
