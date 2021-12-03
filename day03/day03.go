@@ -18,44 +18,26 @@ func day03Question01(filePath string) int {
 		}
 	}
 
-	mostCommonBits := make([]int, binaryNumberLength)
+	mostCommonBits := make([]string, binaryNumberLength)
 	for i, sum := range bitSum {
 		if sum > len(input) / 2 {
-			mostCommonBits[i] = 1
+			mostCommonBits[i] = "1"
 		} else {
-			mostCommonBits[i] = 0
+			mostCommonBits[i] = "0"
 		}
 	}
 
-	//var commonBits []int
-	//for _, binary := range input {
-	//	bin, _ := strconv.Atoi(binary)
-	//	ones := bits.OnesCount(uint(bin))
-	//	if ones > len(binary) - ones {
-	//		commonBits = append(commonBits, 1)
-	//	} else {
-	//		commonBits = append(commonBits, 0)
-	//	}
-	//}
-
-	var commonBitsStringSlice []string
-	for _, bit := range mostCommonBits {
-		commonBitsStringSlice = append(commonBitsStringSlice, strconv.Itoa(bit))
-	}
-	commonBitsString := strings.Join(commonBitsStringSlice, "")
-	println(commonBitsString)
 	var epsilonString string
-	for _, r := range commonBitsString {
+	for _, r := range mostCommonBits {
 		if string(r) == "1" {
 			epsilonString += "0"
 		} else {
 			epsilonString += "1"
 		}
 	}
-	println("eps", epsilonString)
 
 	epsilon, _ := strconv.ParseInt(epsilonString, 2, 16)
-
+	commonBitsString := strings.Join(mostCommonBits, "")
 	gamma, _ := strconv.ParseInt(commonBitsString, 2, 16)
 
 	return int(gamma) * int(epsilon)
