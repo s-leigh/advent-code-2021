@@ -12,12 +12,12 @@ func check(e error) {
 }
 
 // copied from https://gobyexample.com/reading-files
-func readFile(filepath string) string {
+func ReadFile(filepath string) string {
 	dat, err := os.ReadFile(filepath)
 	check(err)
 	return string(dat)
 }
 
 func SplitByNewLine(filepath string) []string {
-	return strings.Split(readFile(filepath), "\n")
+	return strings.Split(ReadFile(filepath), "\n")
 }
