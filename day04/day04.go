@@ -2,6 +2,7 @@ package day04
 
 import (
 	"github.com/s-leigh/advent-code-2021/utils"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -17,18 +18,50 @@ type board struct {
 func day04Question01(boardsFilepath string, numbersFilepath string) int {
 	boards := parseBoards(boardsFilepath)
 	numbers := parseNumbers(numbersFilepath)
-	var winningBoard board
+	var winningBoards []board
 	var winningNumber int
 	for _, number := range numbers {
 		markOffNumber(number, boards)
-		boardHasWon, boardThatWon := checkWin(boards)
+		boardHasWon, boardsThatWon := checkWin(boards)
 		if boardHasWon {
-			winningBoard = boardThatWon
+			winningBoards = boardsThatWon
 			winningNumber = number
 			break
 		}
 	}
-	return sumBoard(winningBoard.rows) * winningNumber
+	if len(winningBoards) > 1 {
+		panic("More than one winner!")
+	}
+	return sumBoard(winningBoards[0].rows) * winningNumber
+}
+
+func day04Question02(boardsFilepath string, numbersFilepath string) int {
+	boards := parseBoards(boardsFilepath)
+	numbers := parseNumbers(numbersFilepath)
+	losingBoard, losingNumber := markOffUntilLoser(boards, numbers, -1)
+	return sumBoard(losingBoard.rows) * losingNumber
+}
+
+func markOffUntilLoser(boards []board, numbers []int, lastNumber int) (board, int) {
+	markOffNumber(numbers[0], boards)
+	boardHasWon, boardsThatWon := checkWin(boards)
+	if boardHasWon {
+		if len(boards) == 1 {
+			return boards[0], numbers[0]
+		}
+		for i, b := range boards {
+			for _, wb := range boardsThatWon {
+				if reflect.DeepEqual(b, wb) {
+					if i+1 > len(boards) {
+						boards = boards[:len(boards)-1]
+					} else {
+						boards = append(boards[:i], boards[i+1:]...)
+					}
+				}
+			}
+		}
+	}
+	return markOffUntilLoser(boards, numbers[1:], numbers[0])
 }
 
 func sumBoard(boardRows [][]int) int {
@@ -62,7 +95,7 @@ func markOffNumber(number int, boards []board) {
 	}
 }
 
-func checkWin(boards []board) (bool, board) {
+func checkWin(boards []board) (bool, []board) {
 	hasWon := func(rowOrColumn []int) bool {
 		counter := 0
 		for _, entry := range rowOrColumn {
@@ -72,19 +105,23 @@ func checkWin(boards []board) (bool, board) {
 		}
 		return counter == len(rowOrColumn)
 	}
+	var winners []board // more than one board can win at a time
 	for _, board := range boards {
 		for _, col := range board.columns {
 			if hasWon(col) {
-				return true, board
+				winners = append(winners, board)
 			}
 		}
 		for _, row := range board.rows {
 			if hasWon(row) {
-				return true, board
+				winners = append(winners, board)
 			}
 		}
 	}
-	return false, board{}
+	if len(winners) > 0 {
+		return true, winners
+	}
+	return false, []board{}
 }
 
 func parseNumbers(filepath string) []int {
