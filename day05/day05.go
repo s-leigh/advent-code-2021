@@ -22,22 +22,65 @@ type line struct {
 
 func day05Question01(filepath string) int {
 	lines := parseInput(filepath)
-	horizontalAndVertical := sortLines(horizontalAndVerticalLines(lines))
+	horizontalAndVertical := horizontalAndVerticalLines(lines)
 	grid := makeGrid()
 	markGrid(grid, horizontalAndVertical)
+	return numberOfPointsOver1(grid)
+}
+
+func day05Question02(filepath string) int {
+	lines := parseInput(filepath)
+	grid := makeGrid()
+	markGrid(grid, lines)
 	return numberOfPointsOver1(grid)
 }
 
 func markGrid(grid *[][]int, lines []line) {
 	for _, line := range lines {
 		if isHorizontal(line) {
-			for i := line.from.x; i <= line.to.x; i++ {
-				(*grid)[line.from.y][i]++
+			if line.from.x < line.to.x {
+				for i := line.from.x; i <= line.to.x; i++ {
+					(*grid)[line.from.y][i]++
+				}
+			} else {
+				for i := line.from.x; i >= line.to.x; i-- {
+					(*grid)[line.from.y][i]++
+				}
 			}
 		} else if isVertical(line) {
-			for i:= line.from.y; i <= line.to.y; i++ {
-				(*grid)[i][line.from.x]++
+			if line.from.y < line.to.y {
+				for i := line.from.y; i <= line.to.y; i++ {
+					(*grid)[i][line.from.x]++
+				}
+			} else {
+				for i := line.from.y; i >= line.to.y; i-- {
+					(*grid)[i][line.from.x]++
+				}
 			}
+		} else {
+			markDiagonal(grid, line)
+		}
+	}
+}
+
+func markDiagonal(grid *[][]int, line line) {
+	yCounter := 0
+	alterYCounter := func() {
+		if line.from.y < line.to.y {
+			yCounter++
+		} else {
+			yCounter--
+		}
+	}
+	if line.from.x < line.to.x {
+		for i := line.from.x; i <= line.to.x; i++ {
+			(*grid)[line.from.y+yCounter][i]++
+			alterYCounter()
+		}
+	} else {
+		for i := line.from.x; i >= line.to.x; i-- {
+			(*grid)[line.from.y+yCounter][i]++
+			alterYCounter()
 		}
 	}
 }
@@ -80,19 +123,6 @@ func horizontalAndVerticalLines(lines []line) []line {
 		}
 	}
 	return hAndV
-}
-
-// go from small x to large x, small y to large y
-func sortLines(lines []line) []line {
-	for i, l := range lines {
-		if l.from.x > l.to.x {
-			lines[i] = line{coordinates{l.to.x, l.from.y}, coordinates{l.from.x, l.to.y}}
-		}
-		if l.from.y > l.to.y {
-			lines[i] = line{coordinates{l.from.x, l.to.y}, coordinates{l.to.x, l.from.y}}
-		}
-	}
-	return lines
 }
 
 func isHorizontal(line line) bool {
