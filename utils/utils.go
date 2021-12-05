@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func check(e error) {
+func Check(e error) {
 	if e != nil {
 		panic(e)
 	}
@@ -14,7 +14,7 @@ func check(e error) {
 // copied from https://gobyexample.com/reading-files
 func ReadFile(filepath string) string {
 	dat, err := os.ReadFile(filepath)
-	check(err)
+	Check(err)
 	return string(dat)
 }
 
