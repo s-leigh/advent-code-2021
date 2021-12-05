@@ -21,7 +21,7 @@ func day04Question01(boardsFilepath string, numbersFilepath string) int {
 	var winningBoards []board
 	var winningNumber int
 	for _, number := range numbers {
-		markOffNumber(number, boards)
+		markOffNumber(number, &boards)
 		boardHasWon, boardsThatWon := checkWin(boards)
 		if boardHasWon {
 			winningBoards = boardsThatWon
@@ -38,30 +38,30 @@ func day04Question01(boardsFilepath string, numbersFilepath string) int {
 func day04Question02(boardsFilepath string, numbersFilepath string) int {
 	boards := parseBoards(boardsFilepath)
 	numbers := parseNumbers(numbersFilepath)
-	losingBoard, losingNumber := markOffUntilLoser(boards, numbers, -1)
+	losingBoard, losingNumber := markOffUntilLoser(&boards, numbers)
 	return sumBoard(losingBoard.rows) * losingNumber
 }
 
-func markOffUntilLoser(boards []board, numbers []int, lastNumber int) (board, int) {
+func markOffUntilLoser(boards *[]board, numbers []int) (board, int) {
 	markOffNumber(numbers[0], boards)
-	boardHasWon, boardsThatWon := checkWin(boards)
+	boardHasWon, boardsThatWon := checkWin(*boards)
 	if boardHasWon {
-		if len(boards) == 1 {
-			return boards[0], numbers[0]
+		if len(*boards) == 1 {
+			return (*boards)[0], numbers[0]
 		}
-		for i, b := range boards {
+		for i, b := range *boards {
 			for _, wb := range boardsThatWon {
 				if reflect.DeepEqual(b, wb) {
-					if i+1 > len(boards) {
-						boards = boards[:len(boards)-1]
+					if i+1 > len(*boards) {
+						*boards = (*boards)[:len(*boards)-1]
 					} else {
-						boards = append(boards[:i], boards[i+1:]...)
+						*boards = append((*boards)[:i], (*boards)[i+1:]...)
 					}
 				}
 			}
 		}
 	}
-	return markOffUntilLoser(boards, numbers[1:], numbers[0])
+	return markOffUntilLoser(boards, numbers[1:])
 }
 
 func sumBoard(boardRows [][]int) int {
@@ -76,8 +76,8 @@ func sumBoard(boardRows [][]int) int {
 	return total
 }
 
-func markOffNumber(number int, boards []board) {
-	for _, board := range boards {
+func markOffNumber(number int, boards *[]board) {
+	for _, board := range *boards {
 		for _, column := range board.columns {
 			for k, numberOnBoard := range column {
 				if numberOnBoard == number {
