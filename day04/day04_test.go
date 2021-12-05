@@ -29,3 +29,9 @@ func TestDay04Question02(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func BenchmarkDay04Question02(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		day04Question02("./inputBoards.txt", "./inputNumbers.txt")
+	}
+}
