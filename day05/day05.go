@@ -36,51 +36,42 @@ func day05Question02(filepath string) int {
 }
 
 func markGrid(grid *[][]int, lines []line) {
+	alterI := func(i *int, from int, to int) {
+		if from < to {
+			*i++
+		} else {
+			*i--
+		}
+	}
+	loopComparison := func(from int, to int, i *int) bool {
+		if from < to {
+			return *i <= to
+		} else {
+			return *i >= to
+		}
+	}
 	for _, line := range lines {
 		if isHorizontal(line) {
-			if line.from.x < line.to.x {
-				for i := line.from.x; i <= line.to.x; i++ {
-					(*grid)[line.from.y][i]++
-				}
-			} else {
-				for i := line.from.x; i >= line.to.x; i-- {
-					(*grid)[line.from.y][i]++
-				}
+			for i := line.from.x; loopComparison(line.from.x, line.to.x, &i); alterI(&i, line.from.x, line.to.x) {
+				(*grid)[line.from.y][i]++
 			}
 		} else if isVertical(line) {
-			if line.from.y < line.to.y {
-				for i := line.from.y; i <= line.to.y; i++ {
-					(*grid)[i][line.from.x]++
-				}
-			} else {
-				for i := line.from.y; i >= line.to.y; i-- {
-					(*grid)[i][line.from.x]++
-				}
+			for i := line.from.y; loopComparison(line.from.y, line.to.y, &i); alterI(&i, line.from.y, line.to.y) {
+				(*grid)[i][line.from.x]++
 			}
 		} else {
-			markDiagonal(grid, line)
-		}
-	}
-}
-
-func markDiagonal(grid *[][]int, line line) {
-	yCounter := 0
-	alterYCounter := func() {
-		if line.from.y < line.to.y {
-			yCounter++
-		} else {
-			yCounter--
-		}
-	}
-	if line.from.x < line.to.x {
-		for i := line.from.x; i <= line.to.x; i++ {
-			(*grid)[line.from.y+yCounter][i]++
-			alterYCounter()
-		}
-	} else {
-		for i := line.from.x; i >= line.to.x; i-- {
-			(*grid)[line.from.y+yCounter][i]++
-			alterYCounter()
+			yCounter := 0
+			alterYCounter := func() {
+				if line.from.y < line.to.y {
+					yCounter++
+				} else {
+					yCounter--
+				}
+			}
+			for i := line.from.x; loopComparison(line.from.x, line.to.x, &i); alterI(&i, line.from.x, line.to.x) {
+				(*grid)[line.from.y+yCounter][i]++
+				alterYCounter()
+			}
 		}
 	}
 }
@@ -89,8 +80,8 @@ func numberOfPointsOver1(grid *[][]int) int {
 	total := 0
 	for _, line := range *grid {
 		for _, entry := range line {
-			if entry >= 2 {
-				total ++
+			if entry > 1 {
+				total++
 			}
 		}
 	}
