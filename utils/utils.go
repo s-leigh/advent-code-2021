@@ -2,10 +2,11 @@ package utils
 
 import (
 	"os"
+	"strconv"
 	"strings"
 )
 
-func Check(e error) {
+func check(e error) {
 	if e != nil {
 		panic(e)
 	}
@@ -14,10 +15,16 @@ func Check(e error) {
 // copied from https://gobyexample.com/reading-files
 func ReadFile(filepath string) string {
 	dat, err := os.ReadFile(filepath)
-	Check(err)
+	check(err)
 	return string(dat)
 }
 
 func SplitByNewLine(filepath string) []string {
 	return strings.Split(ReadFile(filepath), "\n")
+}
+
+func StringToInt(str string) int {
+	i, err := strconv.Atoi(str)
+	check(err)
+	return i
 }

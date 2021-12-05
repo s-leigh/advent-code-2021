@@ -2,7 +2,6 @@ package day05
 
 import (
 	"github.com/s-leigh/advent-code-2021/utils"
-	"strconv"
 	"strings"
 )
 
@@ -96,10 +95,10 @@ func parseInput(filepath string) []line {
 		for i := 0; i < len(stringCoords); i += 2 {
 			stringXYFrom := strings.Split(stringCoords[i], XYSeparator) // ["1","2"]
 			stringXYTo := strings.Split(stringCoords[i+1], XYSeparator)
-			xFrom := stringToInt(stringXYFrom[0])
-			yFrom := stringToInt(stringXYFrom[1])
-			xTo := stringToInt(stringXYTo[0])
-			yTo := stringToInt(stringXYTo[1])
+			xFrom := utils.StringToInt(stringXYFrom[0])
+			yFrom := utils.StringToInt(stringXYFrom[1])
+			xTo := utils.StringToInt(stringXYTo[0])
+			yTo := utils.StringToInt(stringXYTo[1])
 			lines = append(lines, line{coordinates{xFrom, yFrom}, coordinates{xTo, yTo}})
 		}
 	}
@@ -130,10 +129,4 @@ func makeGrid() *[][]int {
 		grid[i] = make([]int, GridSquareSize)
 	}
 	return &grid
-}
-
-func stringToInt(str string) int {
-	i, err := strconv.Atoi(str)
-	utils.Check(err)
-	return i
 }
