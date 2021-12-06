@@ -23,6 +23,15 @@ func SplitByNewLine(filepath string) []string {
 	return strings.Split(ReadFile(filepath), "\n")
 }
 
+func SplitBy(filepath string, separator string) []int {
+	stringSlice := strings.Split(ReadFile(filepath), separator)
+	intSlice := make([]int, len(stringSlice))
+	for i, s := range stringSlice {
+		intSlice[i] = StringToInt(s)
+	}
+	return intSlice
+}
+
 func StringToInt(str string) int {
 	i, err := strconv.Atoi(str)
 	check(err)
