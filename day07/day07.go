@@ -6,12 +6,19 @@ import (
 
 func day07Question01(filepath string) uint {
 	crabPositions := utils.SplitBy(filepath, ",")
-	fuelUseStats := findFuelUseForPositions(&crabPositions)
+	fuelUseStats := findFuelUseForPositions(&crabPositions, linearFuelUseToGetToPosition)
 	shortestJourneyPosition := findShortestJourney(&fuelUseStats)
-	return totalFuelUseToGetToPosition(shortestJourneyPosition, &crabPositions)
+	return linearFuelUseToGetToPosition(shortestJourneyPosition, &crabPositions)
 }
 
-func totalFuelUseToGetToPosition(position int, crabPositions *[]int) uint {
+func day07Question02(filepath string) uint {
+	crabPositions := utils.SplitBy(filepath, ",")
+	fuelUseStats := findFuelUseForPositions(&crabPositions, exponentialFuelUseToGetToPosition)
+	shortestJourneyPosition := findShortestJourney(&fuelUseStats)
+	return exponentialFuelUseToGetToPosition(shortestJourneyPosition, &crabPositions)
+}
+
+func linearFuelUseToGetToPosition(position int, crabPositions *[]int) uint {
 	total := uint(0)
 	for _, crabPosition := range *crabPositions {
 		total += absoluteValue(crabPosition - position)
@@ -19,11 +26,27 @@ func totalFuelUseToGetToPosition(position int, crabPositions *[]int) uint {
 	return total
 }
 
-func findFuelUseForPositions(positions *[]int) map[int]uint {
+func exponentialFuelUseToGetToPosition(position int, crabPositions *[]int) uint {
+	total := uint(0)
+	for _, crabPosition := range *crabPositions {
+		steps := absoluteValue(crabPosition - position)
+		total += exponentialFuelGauge(steps)
+	}
+	return total
+}
+
+func exponentialFuelGauge(steps uint) uint {
+	if steps == 0 {
+		return uint(0)
+	}
+	return steps + exponentialFuelGauge(steps - 1)
+}
+
+func findFuelUseForPositions(positions *[]int, fuelUseFn func(int, *[]int) uint) map[int] uint {
 	uniquePositions := unique(positions)
 	positionsAndFuelUse := make(map[int]uint, len(uniquePositions))
-	for _, positionToGoTo := range uniquePositions {
-		positionsAndFuelUse[positionToGoTo] += totalFuelUseToGetToPosition(positionToGoTo, positions)
+	for i := range *positions {
+		positionsAndFuelUse[i] += fuelUseFn(i, positions)
 	}
 	return positionsAndFuelUse
 }

@@ -17,3 +17,19 @@ func TestDay07Question01(t *testing.T) {
 		t.Error("Expected", expected, "got", res)
 	}
 }
+
+func TestDay07Question02SampleInput(t *testing.T) {
+	expected := uint(168)
+	res := day07Question02("testInput.txt")
+	if res != expected {
+		t.Error("Expected", expected, "got", res)
+	}
+}
+
+func TestDay07Question02(t *testing.T) {
+	expected := uint(86397080)
+	res := day07Question02("input.txt")
+	if res != expected {
+		t.Error("Expected", expected, "got", res)
+	}
+}
