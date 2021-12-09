@@ -5,14 +5,12 @@ import (
 	"strings"
 )
 
-const DEFAULT_VALUE = 999999
-
 type Point struct {
 	value int
-	up int
-	down int
-	left int
-	right int
+	up *Point
+	down *Point
+	left *Point
+	right *Point
 }
 
 func day09Question01(filepath string) int {
@@ -25,41 +23,62 @@ func day09Question01(filepath string) int {
 	return sum
 }
 
-func lowestPoints(points []Point) []Point {
+func lowestPoints(points [][]Point) []Point {
 	var lowest []Point
-	for _, p := range points {
-		if p.value < p.up && p.value < p.down && p.value < p.left && p.value < p.right {
-			lowest = append(lowest, p)
+	for _, pRow := range points {
+		for _, p := range pRow {
+			if p.valueLessThanNeighbours() {
+				lowest = append(lowest, p)
+			}
 		}
 	}
 	return lowest
 }
 
-func convertToPoints(rawInput [][]int) []Point {
-	oneDimensionalSliceValueOrDefault := func(slice []int, index int) int {
-		if index < len(slice) && index >= 0 {
-			return slice[index]
+func (p Point)valueLessThanNeighbours() bool {
+	outcome := true
+	for _, neighbour := range []*Point{p.up, p.down, p.left, p.right} {
+		if neighbour != nil && neighbour.value <= p.value {
+			outcome = false
 		}
-		return DEFAULT_VALUE
 	}
-	twoDimensionalSliceValueOrDefault := func(slice [][]int, firstIndex int, secondIndex int) int {
+	return outcome
+}
+
+func convertToPoints(rawInput [][]int) [][]Point {
+	twoDimensionalSliceValueOrDefault := func(slice [][]Point, firstIndex int, secondIndex int) *Point {
 		if firstIndex < len(slice) && firstIndex >= 0 {
-			if secondIndex <= len(slice[firstIndex]) && secondIndex >= 0 {
-				return slice[firstIndex][secondIndex]
+			if secondIndex < len(slice[firstIndex]) && secondIndex >= 0 {
+				return &slice[firstIndex][secondIndex]
 			}
 		}
-		return DEFAULT_VALUE
+		return nil
 	}
-	var points []Point
-	for yIndex, line := range rawInput {
+	var points [][]Point
+	// Initialise with nil directions first
+	for _, line := range rawInput {
+		pointLine := make([]Point, len(line))
 		for xIndex, value := range line {
-			points = append(points, Point{
+			pointLine[xIndex] = Point{
 				value,
-				twoDimensionalSliceValueOrDefault(rawInput, yIndex-1, xIndex),
-				twoDimensionalSliceValueOrDefault(rawInput, yIndex+1, xIndex),
-				oneDimensionalSliceValueOrDefault(line, xIndex-1),
-				oneDimensionalSliceValueOrDefault(line, xIndex+1),
-			})
+				nil,
+				nil,
+				nil,
+				nil,
+			}
+		}
+		points = append(points, pointLine)
+	}
+	// Now we can create pointers to adjacent values
+	for yIndex, line := range points {
+		for xIndex, point := range line {
+			points[yIndex][xIndex] = Point{
+				point.value,
+				twoDimensionalSliceValueOrDefault(points, yIndex-1, xIndex),
+				twoDimensionalSliceValueOrDefault(points, yIndex+1, xIndex),
+				twoDimensionalSliceValueOrDefault(points, yIndex, xIndex-1),
+				twoDimensionalSliceValueOrDefault(points, yIndex, xIndex+1),
+			}
 		}
 	}
 	return points
