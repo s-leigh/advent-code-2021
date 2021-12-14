@@ -1,18 +1,64 @@
 package day13
 
 import (
-	"fmt"
 	"github.com/s-leigh/advent-code-2021/utils"
 	"strings"
 )
 
-func day13Question01(filepath string) int {
-	coOrds, folds := parseInput(filepath)
-	fmt.Printf("%v\n%v\n", coOrds, folds)
-	return -1
+type Axis int
+
+const (
+	x Axis = iota
+	y
+)
+
+func (a Axis) String() string {
+	if a == x {
+		return "x"
+	}
+	return "y"
 }
 
-// Returns e.g. [[1,2],[2,3]], [["y", "7"],["x","4"]]
+func day13Question01(filepath string) int {
+	coOrds, folds := parseInput(filepath)
+	f := folds[0] // Q1 only cares about the first fold
+	degreeOfFoldage := utils.StringToInt(f[1])
+	if f[0] == x.String() {
+		fold(&coOrds, x, degreeOfFoldage)
+	} else {
+		fold(&coOrds, y, degreeOfFoldage)
+	}
+	return len(coOrds) - numberOfDuplicates(&coOrds, 0)
+}
+
+func fold(coOrdinates *[][]int, axis Axis, degree int) {
+	foldingCoordinateIndex := -1
+	if axis == x {
+		foldingCoordinateIndex = 0
+	} else {
+		foldingCoordinateIndex = 1
+	}
+	for _, coOrd := range *coOrdinates {
+		if coOrd[foldingCoordinateIndex] > degree {
+			coOrd[foldingCoordinateIndex] = coOrd[foldingCoordinateIndex] - ((coOrd[foldingCoordinateIndex] - degree) * 2)
+		}
+	}
+}
+
+func numberOfDuplicates(coOrdinates *[][]int, counter int) int {
+	if len(*coOrdinates) == 1 {
+		return counter
+	}
+	x, xs := (*coOrdinates)[0], (*coOrdinates)[1:]
+	for _, coOrd := range xs {
+		if coOrd[0] == x[0] && coOrd[1] == x[1] {
+			counter++
+		}
+	}
+	return numberOfDuplicates(&xs, counter)
+}
+
+// Returns e.g. [[1,2],[2,3]], [["y","7"],["x","4"]]
 func parseInput(filepath string) ([][]int, [][]string) {
 	stringInput := utils.SplitByNewLine(filepath)
 	var coOrds [][]int
